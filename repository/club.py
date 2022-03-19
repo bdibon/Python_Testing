@@ -39,6 +39,13 @@ class ClubRepository:
         except Exception:
             return None
 
+    def get_club_by_email(self, email):
+        try:
+            club = next((c for c in self._clubs if c.email == email))
+            return club
+        except Exception:
+            return None
+
 
 def get_club_repository():
     clubs = loadClubs()

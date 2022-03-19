@@ -1,8 +1,5 @@
 """Define the club objects."""
 
-from email.policy import default
-
-
 PLACE_POINTS_COST = 1
 
 

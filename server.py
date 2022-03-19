@@ -1,4 +1,3 @@
-import json
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 from models import ClubException, CompetitionException
@@ -23,12 +22,16 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
-    club = [club for club in clubs if club["email"] == request.form["email"]][
-        0
-    ]
-    return render_template(
-        "welcome.html", club=club, competitions=competitions
-    )
+    email = request.form.get("email", None)
+    club = club_repo.get_club_by_email(email)
+
+    if club:
+        return render_template(
+            "welcome.html", club=club, competitions=competitions
+        )
+    else:
+        flash("Invalid credentials.")
+        return render_template("index.html")
 
 
 @app.route("/book/<competition>/<club>")
