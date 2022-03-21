@@ -1,0 +1,6 @@
+from repository.club import get_club_repository
+from repository.competition import get_competition_repository
+
+
+get_club_repository = get_club_repository
+get_competition_repository = get_competition_repository
