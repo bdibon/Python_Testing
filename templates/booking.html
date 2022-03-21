@@ -6,18 +6,21 @@
 </head>
 <body>
     <h2>{{competition['name']}}</h2>
-    Places available: {{competition['numberOfPlaces']}}
-    <form action="/purchasePlaces" method="post">
-        <input type="hidden" name="club" value="{{club['name']}}">
-        <input type="hidden" name="competition" value="{{competition['name']}}">
-        <label for="places">How many places?</label>
-        <input
-            type="number"
-            max="{{ [ 12, club['points'] ]|min }}"
-            name="places"
-            id=""
-        />
-        <button type="submit">Book</button>
-    </form>
+    {% if competition.is_over() %}
+        <p>Registrations are closed.</p>
+    {% else %}
+        Places available: {{competition['numberOfPlaces']}}
+        <form action="/purchasePlaces" method="post">
+            <input type="hidden" name="club" value="{{club['name']}}">
+            <input type="hidden" name="competition" value="{{competition['name']}}">
+            <label for="places">How many places?</label>
+            <input
+                type="number"
+                max="{{ [ 12, club['points'] ]|min }}"
+                name="places"
+                id=""/>
+            <button type="submit">Book</button>
+        </form>
+    {% endif %}
 </body>
 </html>

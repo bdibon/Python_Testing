@@ -69,12 +69,18 @@ class Competition:
         self.save()
 
     def book_places(self, club, placesRequired):
+        if self.is_over():
+            raise CompetitionException("Competition is over.")
+
         if self._numberOfPlaces >= placesRequired:
             club.buy_places(placesRequired)
             club.save()
             self._withdraw_places(placesRequired)
         else:
             raise CompetitionException("Not enough places left.")
+
+    def is_over(self):
+        return self._date < datetime.now()
 
     def save(self):
         if self._source_ref is not None:
