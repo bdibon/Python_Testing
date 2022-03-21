@@ -1,24 +1,19 @@
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
 
-
-def loadClubs():
-    with open("clubs.json") as c:
-        listOfClubs = json.load(c)["clubs"]
-        return listOfClubs
-
-
-def loadCompetitions():
-    with open("competitions.json") as comps:
-        listOfCompetitions = json.load(comps)["competitions"]
-        return listOfCompetitions
+from models import ClubException, CompetitionException
+from repository import get_competition_repository, get_club_repository
 
 
 app = Flask(__name__)
 app.secret_key = "something_special"
 
-competitions = loadCompetitions()
-clubs = loadClubs()
+
+club_repo = get_club_repository()
+competition_repo = get_competition_repository()
+
+competitions = competition_repo.competitions
+clubs = club_repo.clubs
 
 
 @app.route("/")
@@ -53,15 +48,20 @@ def book(competition, club):
 
 @app.route("/purchasePlaces", methods=["POST"])
 def purchasePlaces():
-    competition = [
-        c for c in competitions if c["name"] == request.form["competition"]
-    ][0]
-    club = [c for c in clubs if c["name"] == request.form["club"]][0]
+    competition_name = request.form.get("competition", None)
+    club_name = request.form.get("club", None)
+
+    competition = competition_repo.get_competition_by_name(competition_name)
+    club = club_repo.get_club_by_name(club_name)
+
     placesRequired = int(request.form["places"])
-    competition["numberOfPlaces"] = (
-        int(competition["numberOfPlaces"]) - placesRequired
-    )
-    flash("Great-booking complete!")
+
+    try:
+        competition.book_places(club, placesRequired)
+        flash("Great-booking complete!")
+    except (ClubException, CompetitionException) as e:
+        flash(e.message)
+
     return render_template(
         "welcome.html", club=club, competitions=competitions
     )
