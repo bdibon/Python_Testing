@@ -77,6 +77,7 @@ class Competition:
             raise CompetitionException("Not enough places left.")
 
     def save(self):
-        self._source_ref["name"] = self._name
-        self._source_ref["date"] = self._date
-        self._source_ref["numberOfPlaces"] = self._numberOfPlaces
+        if self._source_ref is not None:
+            self._source_ref["name"] = self._name
+            self._source_ref["date"] = self._date
+            self._source_ref["numberOfPlaces"] = self._numberOfPlaces

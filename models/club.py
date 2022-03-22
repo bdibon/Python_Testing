@@ -65,6 +65,27 @@ class Club:
         except ValueError:
             raise ClubException("Points must be an integer.")
 
+    @property
+    def places_budget(self):
+        return self._points // PLACE_POINTS_COST
+
+    def credit_points(self, points):
+        try:
+            self._points += points
+        except TypeError:
+            raise ClubException("Points must be an integer.")
+
+    def debit_points(self, points):
+        try:
+            if self._points - points >= 0:
+                self._points -= points
+            else:
+                raise ClubException(
+                    f"Club has {self._points}, cannot debit {points}."
+                )
+        except TypeError:
+            raise ClubException("Points must be an integer.")
+
     def has_enough_points(self, number_of_places):
         return PLACE_POINTS_COST * number_of_places <= self._points
 
@@ -77,6 +98,7 @@ class Club:
             )
 
     def save(self):
-        self._source_ref["name"] = self._name
-        self._source_ref["email"] = self._email
-        self._source_ref["points"] = self._points
+        if self._source_ref is not None:
+            self._source_ref["name"] = self._name
+            self._source_ref["email"] = self._email
+            self._source_ref["points"] = self._points
