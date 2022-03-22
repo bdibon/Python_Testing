@@ -4,76 +4,80 @@ from models import ClubException, CompetitionException
 from repository import get_competition_repository, get_club_repository
 
 
-app = Flask(__name__)
-app.secret_key = "something_special"
+def create_app(club_repo=None, competition_repo=None):
+    app = Flask(__name__)
+    app.secret_key = "something_special"
 
+    if club_repo is None:
+        club_repo = get_club_repository()
 
-club_repo = get_club_repository()
-competition_repo = get_competition_repository()
+    if competition_repo is None:
+        competition_repo = get_competition_repository()
+    competitions = competition_repo.competitions
 
-competitions = competition_repo.competitions
-clubs = club_repo.clubs
-
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-
-@app.route("/showSummary", methods=["POST"])
-def showSummary():
-    email = request.form.get("email", None)
-    club = club_repo.get_club_by_email(email)
-
-    if club:
-        return render_template(
-            "welcome.html", club=club, competitions=competitions
-        )
-    else:
-        flash("Invalid credentials.")
+    @app.route("/")
+    def index():
         return render_template("index.html")
 
+    @app.route("/showSummary", methods=["POST"])
+    def showSummary():
+        email = request.form.get("email", None)
+        club = club_repo.get_club_by_email(email)
 
-@app.route("/book/<competition>/<club>")
-def book(competition, club):
-    foundClub = club_repo.get_club_by_name(club)
-    foundCompetition = competition_repo.get_competition_by_name(competition)
+        if club:
+            return render_template(
+                "welcome.html", club=club, competitions=competitions
+            )
+        else:
+            flash("Invalid credentials.")
+            return render_template("index.html")
 
-    if foundClub and foundCompetition:
-        return render_template(
-            "booking.html", club=foundClub, competition=foundCompetition
+    @app.route("/book/<competition>/<club>")
+    def book(competition, club):
+        foundClub = club_repo.get_club_by_name(club)
+        foundCompetition = competition_repo.get_competition_by_name(
+            competition
         )
-    else:
-        flash("Something went wrong-please try again")
+
+        if foundClub and foundCompetition:
+            return render_template(
+                "booking.html", club=foundClub, competition=foundCompetition
+            )
+        else:
+            flash("Something went wrong-please try again")
+            return render_template(
+                "welcome.html", club=club, competitions=competitions
+            )
+
+    @app.route("/purchasePlaces", methods=["POST"])
+    def purchasePlaces():
+        competition_name = request.form.get("competition", None)
+        club_name = request.form.get("club", None)
+
+        competition = competition_repo.get_competition_by_name(
+            competition_name
+        )
+        club = club_repo.get_club_by_name(club_name)
+
+        placesRequired = int(request.form["places"])
+
+        try:
+            competition.book_places(club, placesRequired)
+            flash("Great-booking complete!")
+        except (ClubException, CompetitionException) as e:
+            flash(e.message)
+
         return render_template(
             "welcome.html", club=club, competitions=competitions
         )
 
+    # TODO: Add route for points display
 
-@app.route("/purchasePlaces", methods=["POST"])
-def purchasePlaces():
-    competition_name = request.form.get("competition", None)
-    club_name = request.form.get("club", None)
+    @app.route("/logout")
+    def logout():
+        return redirect(url_for("index"))
 
-    competition = competition_repo.get_competition_by_name(competition_name)
-    club = club_repo.get_club_by_name(club_name)
-
-    placesRequired = int(request.form["places"])
-
-    try:
-        competition.book_places(club, placesRequired)
-        flash("Great-booking complete!")
-    except (ClubException, CompetitionException) as e:
-        flash(e.message)
-
-    return render_template(
-        "welcome.html", club=club, competitions=competitions
-    )
+    return app
 
 
-# TODO: Add route for points display
-
-
-@app.route("/logout")
-def logout():
-    return redirect(url_for("index"))
+app = create_app()
