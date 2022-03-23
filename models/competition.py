@@ -79,5 +79,5 @@ class Competition:
     def save(self):
         if self._source_ref is not None:
             self._source_ref["name"] = self._name
-            self._source_ref["date"] = self._date
+            self._source_ref["date"] = self._date.isoformat(sep=" ")
             self._source_ref["numberOfPlaces"] = self._numberOfPlaces
