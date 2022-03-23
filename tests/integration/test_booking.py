@@ -1,6 +1,8 @@
 from flask import url_for
 from bs4 import BeautifulSoup
 
+from models.club import PLACE_POINTS_COST
+
 
 def test_club_cannot_book_more_than_they_own(
     competition_instance, club_instance, app, client
@@ -49,10 +51,10 @@ def test_places_are_correctly_deducted_from_the_competition(
         },
     )
 
-    competition_after_request = competition_repo.get_competition_by_name(
+    updated_competition_instance = competition_repo.get_competition_by_name(
         competition_instance.name
     )
-    assert competition_after_request.numberOfPlaces == expected_nb_of_places
+    assert updated_competition_instance.numberOfPlaces == expected_nb_of_places
     assert b"Number of Places: %d" % expected_nb_of_places in response.data
 
 
@@ -68,3 +70,24 @@ def test_booking_places_in_the_past_displays_an_error(
 
     response = client.get(book_url)
     assert b"Registrations are closed" in response.data
+
+
+def test_club_is_debited_when_buys_places(
+    club_instance, competition_instance, club_repo, client
+):
+    initial_club_balance = club_instance.points
+    places_required = 2
+    points_spent = places_required * PLACE_POINTS_COST
+    final_club_balance = initial_club_balance - points_spent
+
+    client.post(
+        "/purchasePlaces",
+        data={
+            "competition": competition_instance.name,
+            "club": club_instance.name,
+            "places": places_required,
+        },
+    )
+
+    updated_club_instance = club_repo.get_club_by_name(club_instance.name)
+    assert updated_club_instance.points == final_club_balance
