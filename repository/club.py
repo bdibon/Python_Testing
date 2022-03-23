@@ -46,6 +46,9 @@ class ClubRepository:
         except Exception:
             return None
 
+    def all(self):
+        return (club for club in self.clubs)
+
 
 def get_club_repository():
     clubs = loadClubs()
