@@ -1,6 +1,7 @@
 import pytest
+from datetime import datetime, timedelta
 
-from models import Competition, ClubException
+from models import Competition, ClubException, CompetitionException
 
 
 def test_init(competition):
@@ -32,3 +33,13 @@ def test_book_places_club_cannot_spend_more_than_they_own(
 
     with pytest.raises(ClubException):
         competition_instance.book_places(club_instance, 5)
+
+
+def test_a_club_cannot_book_places_for_a_past_competition(club_instance):
+    past = datetime.today() - timedelta(days=50)
+    competition_instance = Competition(
+        "Super Compét", past.isoformat(sep=" "), 42
+    )
+
+    with pytest.raises(CompetitionException):
+        competition_instance.book_places(club_instance, 1)

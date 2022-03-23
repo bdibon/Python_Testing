@@ -52,6 +52,17 @@ def competition_instance(competition):
 
 
 @pytest.fixture()
+def past_competition_instance():
+    past_competition = COMPETITION_LIST[0]
+    past_competition_instance = Competition(
+        past_competition["name"],
+        past_competition["date"],
+        past_competition["numberOfPlaces"],
+    )
+    return past_competition_instance
+
+
+@pytest.fixture()
 def club_instance():
     club_dict = CLUB_LIST[0]
     club_name = club_dict["name"]

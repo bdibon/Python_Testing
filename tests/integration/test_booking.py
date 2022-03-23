@@ -54,3 +54,17 @@ def test_places_are_correctly_deducted_from_the_competition(
     )
     assert competition_after_request.numberOfPlaces == expected_nb_of_places
     assert b"Number of Places: %d" % expected_nb_of_places in response.data
+
+
+def test_booking_places_in_the_past_displays_an_error(
+    past_competition_instance, club_instance, app, client
+):
+    with app.app_context(), app.test_request_context():
+        book_url = url_for(
+            "book",
+            competition=past_competition_instance.name,
+            club=club_instance.name,
+        )
+
+    response = client.get(book_url)
+    assert b"Registrations are closed" in response.data
