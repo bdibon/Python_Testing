@@ -12,7 +12,8 @@ def loadCompetitions():
 
 
 class CompetitionRepository:
-    def __init__(self, competitions):
+    def __init__(self, competitions, use_source_ref=True):
+        self.use_source_ref = use_source_ref
         self.competitions = competitions
 
     @property
@@ -23,12 +24,13 @@ class CompetitionRepository:
     def competitions(self, competitions):
         self._competitions = []
         for competition in competitions:
+            source_ref = competition if self.use_source_ref else None
             self._competitions.append(
                 Competition(
                     competition["name"],
                     competition["date"],
                     competition["numberOfPlaces"],
-                    source_ref=competition,
+                    source_ref=source_ref,
                 )
             )
 

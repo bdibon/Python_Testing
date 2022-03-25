@@ -63,13 +63,16 @@ def past_competition_instance():
 
 
 @pytest.fixture()
-def club_instance():
+def get_club_instance():
     club_dict = CLUB_LIST[0]
     club_name = club_dict["name"]
     club_email = club_dict["email"]
     club_points = club_dict["points"]
-    club = Club(club_name, club_email, club_points)
-    return club
+
+    def club_instance():
+        return Club(club_name, club_email, club_points)
+
+    return club_instance
 
 
 @pytest.fixture()
@@ -79,7 +82,7 @@ def club_list():
 
 @pytest.fixture()
 def club_repo(club_list):
-    club_repo = ClubRepository(club_list)
+    club_repo = ClubRepository(club_list, use_source_ref=False)
     return club_repo
 
 
@@ -90,7 +93,9 @@ def competition_list():
 
 @pytest.fixture()
 def competition_repo(competition_list):
-    competition_repo = CompetitionRepository(competition_list)
+    competition_repo = CompetitionRepository(
+        competition_list, use_source_ref=False
+    )
     return competition_repo
 
 

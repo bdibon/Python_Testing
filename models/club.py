@@ -1,6 +1,6 @@
 """Define the club objects."""
 
-PLACE_POINTS_COST = 1
+PLACE_POINTS_COST = 3
 
 
 class ClubException(Exception):

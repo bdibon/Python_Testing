@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime, timedelta
 
 from models import Competition, ClubException, CompetitionException
+from models.club import PLACE_POINTS_COST
 
 
 def test_init(competition):
@@ -19,23 +20,26 @@ def test_init(competition):
     )
 
 
-def test_book_places_club_is_debited(club_instance, competition_instance):
+def test_book_places_club_is_debited(get_club_instance, competition_instance):
+    club_instance = get_club_instance()
     club_original_points = club_instance.points
-    competition_instance.book_places(club_instance, 4)
+    competition_instance.book_places(club_instance, 2)
 
-    assert club_instance.points == club_original_points - 4
+    assert club_instance.points == club_original_points - 2 * PLACE_POINTS_COST
 
 
 def test_book_places_club_cannot_spend_more_than_they_own(
-    club_instance, competition_instance
+    get_club_instance, competition_instance
 ):
+    club_instance = get_club_instance()
     club_instance._points = 4
 
     with pytest.raises(ClubException):
         competition_instance.book_places(club_instance, 5)
 
 
-def test_a_club_cannot_book_places_for_a_past_competition(club_instance):
+def test_a_club_cannot_book_places_for_a_past_competition(get_club_instance):
+    club_instance = get_club_instance()
     past = datetime.today() - timedelta(days=50)
     competition_instance = Competition(
         "Super Compét", past.isoformat(sep=" "), 42

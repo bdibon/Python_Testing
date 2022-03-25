@@ -12,7 +12,8 @@ def loadClubs():
 
 
 class ClubRepository:
-    def __init__(self, clubs):
+    def __init__(self, clubs, use_source_ref=True):
+        self.use_source_ref = use_source_ref
         self.clubs = clubs
 
     @property
@@ -23,12 +24,13 @@ class ClubRepository:
     def clubs(self, clubs):
         self._clubs = []
         for club in clubs:
+            source_ref = club if self.use_source_ref else None
             self._clubs.append(
                 Club(
                     club["name"],
                     club["email"],
                     club["points"],
-                    source_ref=club,
+                    source_ref=source_ref,
                 )
             )
 

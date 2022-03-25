@@ -16,7 +16,7 @@
             <label for="places">How many places?</label>
             <input
                 type="number"
-                max="{{ [ 12, club['points'] ]|min }}"
+                max="{{ [ 12, club.places_budget ]|min }}"
                 name="places"
                 id=""/>
             <button type="submit">Book</button>

@@ -5,8 +5,9 @@ from models.club import PLACE_POINTS_COST
 
 
 def test_club_cannot_book_more_than_they_own(
-    competition_instance, club_instance, app, client
+    competition_instance, get_club_instance, app, client
 ):
+    club_instance = get_club_instance()
     with app.app_context(), app.test_request_context():
         book_url = url_for(
             "book",
@@ -21,8 +22,9 @@ def test_club_cannot_book_more_than_they_own(
 
 
 def test_club_should_not_be_able_to_book_more_than_12_places(
-    competition_instance, club_instance, app, client
+    competition_instance, get_club_instance, app, client
 ):
+    club_instance = get_club_instance()
     with app.app_context(), app.test_request_context():
         book_url = url_for(
             "book",
@@ -37,8 +39,9 @@ def test_club_should_not_be_able_to_book_more_than_12_places(
 
 
 def test_places_are_correctly_deducted_from_the_competition(
-    competition_instance, club_instance, client, competition_repo
+    competition_instance, get_club_instance, client, competition_repo
 ):
+    club_instance = get_club_instance()
     original_nb_of_places = competition_instance.numberOfPlaces
     nb_places_bought = 2
     expected_nb_of_places = original_nb_of_places - nb_places_bought
@@ -59,8 +62,9 @@ def test_places_are_correctly_deducted_from_the_competition(
 
 
 def test_booking_places_in_the_past_displays_an_error(
-    past_competition_instance, club_instance, app, client
+    past_competition_instance, get_club_instance, app, client
 ):
+    club_instance = get_club_instance()
     with app.app_context(), app.test_request_context():
         book_url = url_for(
             "book",
@@ -73,8 +77,9 @@ def test_booking_places_in_the_past_displays_an_error(
 
 
 def test_club_is_debited_when_buys_places(
-    club_instance, competition_instance, club_repo, client
+    competition_instance, club_repo, client
 ):
+    club_instance = club_repo.clubs[0]
     initial_club_balance = club_instance.points
     places_required = 2
     points_spent = places_required * PLACE_POINTS_COST
